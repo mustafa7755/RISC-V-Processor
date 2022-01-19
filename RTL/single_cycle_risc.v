@@ -85,7 +85,7 @@ wire PC_sel_d, B_sel_d,A_sel_d,RegW_en_d;
 wire [2:0] Imm_sel_d;
 wire [2:0] size_type_d;
 wire Mem_rw_d;
-wire Br_un_d, Br_eq_ex, Br_lt_ex;
+wire Br_un_d, Br_eq_ex, Br_lt_ex, Br_Un_ex;
 wire [1:0] WB_sel_d;
 wire [3:0] ALU_Sel_d;
 wire [31:0]instruction_d_or_nop;
@@ -125,6 +125,7 @@ Reg_ID_Ex Reg_ID_Ex_inst
     .reset(reset),
 
     .flush(flush),
+    .stall(stall),
 
     .pc_d(pc_d),
     .pc_ex(pc_ex),
@@ -139,7 +140,6 @@ Reg_ID_Ex Reg_ID_Ex_inst
     .Data_B_ex(rs2_ex),
 
     .PC_sel_d(PC_sel_d),
-    .PC_sel_ex(PC_sel_ex),
 
     .Imm_sel_d(Imm_sel_d),
     .Imm_sel_ex(Imm_sel_ex),
@@ -172,11 +172,11 @@ Reg_ID_Ex Reg_ID_Ex_inst
 //BRANCH_COMP
 wire [31:0] rs1_ex_frw;
 wire [31:0] rs2_ex_frw;
-wire PC_sel_ex2;
+//wire PC_sel_ex2;
 
 Comparator br_cmp
 (  
-    .Br_un(Br_un_ex),
+    .Br_un_ex(Br_un_ex),
  
     .instruction_ex(instruction_ex),
 
@@ -184,9 +184,9 @@ Comparator br_cmp
     .rs2(rs2_ex_frw),
  
     .Br_eq(Br_eq_ex),  
-    .Br_lt(Br_lt_ex),
+    .Br_lt(Br_lt_ex)
 
-    .PC_sel_ex2(PC_sel_ex2)  
+  //  .PC_sel_ex2(PC_sel_ex2)  
 );
 
 //IMM_GEN
@@ -310,9 +310,10 @@ Data_Hazards_stalls Data_Hazards_stalls_inst
 (
     .instruction_d(instruction_d),
     .instruction_ex(instruction_ex),
-
+    .Br_Un_ex(Br_Un_ex),
     .Br_eq(Br_eq_ex),
-    .Br_lt(Br_lt_ex), 
+    .Br_lt(Br_lt_ex),
+    .PC_sel_ex(PC_sel_ex), 
 
     .flush(flush),
     .stall(stall)
@@ -377,7 +378,7 @@ MUX2 mux_stall_control
 
 MUX2 m2_1
 (
-    .sel(PC_sel_ex2), 
+    .sel(PC_sel_ex), 
     .in0(pc4_f), 
     .in1(alu_out_ex), 
     .mux_out(pc_in)
